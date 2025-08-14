@@ -1,0 +1,6 @@
+# Files and folders listed below will be ignored by Git.
+# This keeps the repository clean and focused on source code.
+node_modules/
+.DS_Store
+*.log
+dist/
