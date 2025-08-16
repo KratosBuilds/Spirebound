@@ -1,15 +1,42 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Load the sprite image
+// Sprite image
 const sprite = new Image();
 sprite.src = 'assets/sprite/character1.png';
 
-// Draw the sprite when it has loaded
-sprite.onload = function() {
+// Character position (centered initially)
+let x = canvas.width / 2;
+let y = canvas.height / 2;
+
+// Movement speed in pixels
+const speed = 5;
+
+// Draw the sprite
+function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // Center the sprite in the canvas
-  const x = (canvas.width - sprite.width) / 2;
-  const y = (canvas.height - sprite.height) / 2;
-  ctx.drawImage(sprite, x, y);
-};
+  // Draw the sprite centered at (x, y)
+  ctx.drawImage(sprite, x - sprite.width / 2, y - sprite.height / 2);
+}
+
+// Handle keyboard input
+document.addEventListener('keydown', function(e) {
+  switch (e.key) {
+    case 'ArrowUp':
+      y -= speed;
+      break;
+    case 'ArrowDown':
+      y += speed;
+      break;
+    case 'ArrowLeft':
+      x -= speed;
+      break;
+    case 'ArrowRight':
+      x += speed;
+      break;
+  }
+  draw();
+});
+
+// Redraw when sprite loads
+sprite.onload = draw;
