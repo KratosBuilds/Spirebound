@@ -1,13 +1,25 @@
 // Spirebound main game file
-// Now uses a 16x16 RPG warrior sprite for the player character
+// Uses a 16x16 RPG warrior sprite for the player character
 
 // Game state
-const player = { x: 400, y: 300, size: 32 }; // Removed color, add sprite
+const player = {
+  x: 400,
+  y: 300,
+  size: 32, // How big the sprite appears on canvas
+  speed: 4
+};
 const keys = {};
 
 // Load the sprite
 const warriorImg = new Image();
-warriorImg.src = 'asset/sprite/warrior_16x16.png'; // Make sure this path matches your repo!
+warriorImg.src = 'asset/sprite/warrior_16x16.png'; // Make sure this matches your folder!
+
+warriorImg.onload = function() {
+  console.log("Sprite loaded successfully!");
+};
+warriorImg.onerror = function() {
+  console.error("Failed to load sprite at: " + warriorImg.src);
+};
 
 // Handle key presses
 window.addEventListener('keydown', e => keys[e.key] = true);
@@ -22,7 +34,7 @@ function drawBackground(ctx) {
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   // Silhouetted spires
-  ctx.fillStyle = "#222"; // dark silhouette
+  ctx.fillStyle = "#222";
   ctx.beginPath();
   ctx.moveTo(0, 500);
   ctx.lineTo(150, 350);
@@ -39,7 +51,7 @@ function drawBackground(ctx) {
   ctx.closePath();
   ctx.fill();
 
-  // Optional: Stars
+  // Stars
   ctx.fillStyle = "#fff";
   for (let i = 0; i < 40; i++) {
     let x = Math.random() * ctx.canvas.width;
@@ -54,10 +66,10 @@ function drawBackground(ctx) {
 
 function update() {
   // Move player
-  if (keys["ArrowLeft"]) player.x -= 4;
-  if (keys["ArrowRight"]) player.x += 4;
-  if (keys["ArrowUp"]) player.y -= 4;
-  if (keys["ArrowDown"]) player.y += 4;
+  if (keys["ArrowLeft"]) player.x -= player.speed;
+  if (keys["ArrowRight"]) player.x += player.speed;
+  if (keys["ArrowUp"]) player.y -= player.speed;
+  if (keys["ArrowDown"]) player.y += player.speed;
 }
 
 function draw(ctx) {
@@ -65,13 +77,17 @@ function draw(ctx) {
 
   // Draw player sprite if loaded
   if (warriorImg.complete && warriorImg.naturalWidth > 0) {
-    // Draw the first frame (top-left 16x16) scaled to player.size
-    ctx.drawImage(warriorImg, 0, 0, 16, 16, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
+    // Draw first frame: source x=0, y=0, w=16, h=16
+    ctx.drawImage(
+      warriorImg,
+      0, 0, 16, 16, // source sprite sheet frame
+      player.x - player.size / 2, player.y - player.size / 2, player.size, player.size // destination
+    );
   } else {
-    // Fallback if image not loaded: draw gray placeholder
+    // Fallback: draw gray circle
     ctx.fillStyle = "#888";
     ctx.beginPath();
-    ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+    ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
     ctx.fill();
   }
 
