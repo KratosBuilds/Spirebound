@@ -1,8 +1,13 @@
 // Spirebound main game file
+// Now uses a 16x16 RPG warrior sprite for the player character
 
 // Game state
-const player = { x: 400, y: 300, size: 32, color: "#ff0" };
+const player = { x: 400, y: 300, size: 32 }; // Removed color, add sprite
 const keys = {};
+
+// Load the sprite
+const warriorImg = new Image();
+warriorImg.src = 'asset/sprite/warrior_16x16.png'; // Make sure this path matches your repo!
 
 // Handle key presses
 window.addEventListener('keydown', e => keys[e.key] = true);
@@ -58,11 +63,17 @@ function update() {
 function draw(ctx) {
   drawBackground(ctx);
 
-  // Draw player
-  ctx.fillStyle = player.color;
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
-  ctx.fill();
+  // Draw player sprite if loaded
+  if (warriorImg.complete && warriorImg.naturalWidth > 0) {
+    // Draw the first frame (top-left 16x16) scaled to player.size
+    ctx.drawImage(warriorImg, 0, 0, 16, 16, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
+  } else {
+    // Fallback if image not loaded: draw gray placeholder
+    ctx.fillStyle = "#888";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Title
   ctx.fillStyle = "#fff";
