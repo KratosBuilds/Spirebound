@@ -2,11 +2,130 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Spirebound</title>
-  <link rel="stylesheet" href="styles/style.css">
+  <title>Spirebound Mini Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #222; color: #eee; padding: 20px; }
+    h2 { color: #bada55; }
+    .section { margin-bottom: 2em; }
+    button { background: #bada55; color: #222; border: none; padding: 0.5em 1em; margin: 0.5em 0; cursor: pointer; }
+    button:disabled { color: #555; background: #444; }
+    input { padding: 0.5em; margin-right: 1em; }
+    .quest { margin-bottom: 1em; padding: 1em; background: #333; border-radius: 7px; }
+    .completed { text-decoration: line-through; color: #888; }
+    .inventory { color: #bada55; }
+  </style>
 </head>
 <body>
-  <canvas id="game" width="800" height="600"></canvas>
-  <script src="src/main.js"></script>
+  <h1>Spirebound Mini Game</h1>
+
+  <div class="section" id="character-section">
+    <h2>Character Creation</h2>
+    <input type="text" id="char-name" placeholder="Name">
+    <select id="char-class">
+      <option value="Warrior">Warrior</option>
+      <option value="Mage">Mage</option>
+      <option value="Rogue">Rogue</option>
+    </select>
+    <button id="create-char">Create Character</button>
+
+    <div id="character-info"></div>
+  </div>
+
+  <div class="section" id="quest-section" style="display:none;">
+    <h2>Available Quests</h2>
+    <div id="quest-list"></div>
+    <h2>Your Quests</h2>
+    <div id="player-quests"></div>
+  </div>
+
+  <script src="character.js"></script>
+  <script src="quest.js"></script>
+  <script>
+    let player = null;
+    let playerQuests = [];
+
+    // Character Creation
+    document.getElementById('create-char').onclick = function() {
+      const name = document.getElementById('char-name').value || 'Hero';
+      const charClass = document.getElementById('char-class').value;
+      player = new Character(name, charClass);
+      renderCharacter();
+      document.getElementById('quest-section').style.display = '';
+    };
+
+    function renderCharacter() {
+      const info = document.getElementById('character-info');
+      if (!player) {
+        info.innerHTML = '';
+        return;
+      }
+      info.innerHTML = `
+        <strong>Name:</strong> ${player.name}<br>
+        <strong>Class:</strong> ${player.charClass}<br>
+        <strong>Level:</strong> ${player.level}<br>
+        <strong>HP:</strong> ${player.hp}<br>
+        <strong>Stats:</strong> Str ${player.stats.strength}, Agi ${player.stats.agility}, Int ${player.stats.intelligence}<br>
+        <strong>Inventory:</strong> <span class="inventory">${player.inventory.join(', ') || 'Empty'}</span>
+      `;
+    }
+
+    // Quests UI
+    function renderQuests() {
+      // All available quests
+      const questList = document.getElementById('quest-list');
+      questList.innerHTML = '';
+      quests.forEach(q => {
+        const accepted = playerQuests.some(pq => pq.id === q.id);
+        const div = document.createElement('div');
+        div.className = 'quest';
+        div.innerHTML = `
+          <strong>${q.title}</strong><br>
+          <em>${q.description}</em><br>
+          <button ${accepted ? 'disabled' : ''} onclick="acceptQuestUI(${q.id})">Accept Quest</button>
+        `;
+        questList.appendChild(div);
+      });
+
+      // Player's active quests
+      const playerList = document.getElementById('player-quests');
+      playerList.innerHTML = '';
+      playerQuests.forEach((q, idx) => {
+        const div = document.createElement('div');
+        div.className = 'quest';
+        div.innerHTML = `
+          <span class="${q.completed ? 'completed' : ''}"><strong>${q.title}</strong></span><br>
+          <em>${q.description}</em><br>
+          <strong>Objectives:</strong><br>
+          <ul>
+            ${q.objectives.map((obj, i) => `<li class="${obj.startsWith('[COMPLETED]') ? 'completed' : ''}">
+              ${obj}
+              ${!obj.startsWith('[COMPLETED]') && !q.completed ? `<button onclick="completeObjectiveUI(${q.id},${i})">Complete</button>` : ''}
+            </li>`).join('')}
+          </ul>
+          <button ${q.completed ? 'disabled' : ''} onclick="completeQuestUI(${q.id})">Complete Quest</button>
+        `;
+        playerList.appendChild(div);
+      });
+    }
+    window.renderQuests = renderQuests; // Make available for inline onclick
+
+    // Inline quest functions for UI
+    window.acceptQuestUI = function(id) {
+      acceptQuest(id, playerQuests);
+      renderQuests();
+    };
+    window.completeObjectiveUI = function(id, idx) {
+      completeObjective(id, idx, playerQuests);
+      renderQuests();
+    };
+    window.completeQuestUI = function(id) {
+      completeQuest(id, playerQuests, player);
+      renderCharacter();
+      renderQuests();
+    };
+
+    // Initial render
+    renderQuests();
+  </script>
 </body>
 </html>
