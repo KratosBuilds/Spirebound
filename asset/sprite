@@ -1,9 +1,14 @@
 # Warrior 16x16 Sprite Sheet
 
 - **Character:** Warrior (male, brown skin)
+- **Style:** Classic fantasy RPG, pixel art
 - **Dimensions:** 16x16 pixels
 - **Animations:** Walking (4 frames), Attacking (3 frames)
 - **File:** `warrior_16x16.png`
-- **Layout:**  
-  - Row 1: Walking frames  
-  - Row 2: Attacking frames
+
+## Sprite Layout
+
+| Frame | Animation   | Description                  |
+|-------|-------------|------------------------------|
+| 1-4   | Walking     | Walk cycle                   |
+| 5-7   | Attacking   | Sword attack (right-facing)  |
