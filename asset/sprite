@@ -1,0 +1,9 @@
+# Warrior 16x16 Sprite Sheet
+
+- **Character:** Warrior (male, brown skin)
+- **Dimensions:** 16x16 pixels
+- **Animations:** Walking (4 frames), Attacking (3 frames)
+- **File:** `warrior_16x16.png`
+- **Layout:**  
+  - Row 1: Walking frames  
+  - Row 2: Attacking frames
