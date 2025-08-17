@@ -21,6 +21,13 @@ warriorImg.onerror = function() {
   console.error("Failed to load sprite at: " + warriorImg.src);
 };
 
+// === AUDIO LOGIC FOR MOVEMENT ===
+const moveSound = new Audio('assets/sounds/sirkoto51_rpg_1.wav');
+function playMoveSound() {
+  moveSound.currentTime = 0; // rewind for rapid triggering
+  moveSound.play();
+}
+
 // Handle key presses
 window.addEventListener('keydown', e => keys[e.key] = true);
 window.addEventListener('keyup', e => keys[e.key] = false);
@@ -66,10 +73,12 @@ function drawBackground(ctx) {
 
 function update() {
   // Move player
-  if (keys["ArrowLeft"]) player.x -= player.speed;
-  if (keys["ArrowRight"]) player.x += player.speed;
-  if (keys["ArrowUp"]) player.y -= player.speed;
-  if (keys["ArrowDown"]) player.y += player.speed;
+  let moved = false;
+  if (keys["ArrowLeft"]) { player.x -= player.speed; moved = true; }
+  if (keys["ArrowRight"]) { player.x += player.speed; moved = true; }
+  if (keys["ArrowUp"]) { player.y -= player.speed; moved = true; }
+  if (keys["ArrowDown"]) { player.y += player.speed; moved = true; }
+  if (moved) playMoveSound();
 }
 
 function draw(ctx) {
