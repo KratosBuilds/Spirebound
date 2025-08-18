@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ancient Temple Background - Game Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    h1 {
+      margin-bottom: 20px;
+      color: #d4af37;
+      text-align: center;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .game-container {
+      background: #333;
+      padding: 20px;
+      border: 3px solid #555;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    }
+    
+    canvas {
+      border: 2px solid #666;
+      background: #000;
+      display: block;
+    }
+    
+    .info-panel {
+      margin-top: 20px;
+      text-align: center;
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #444;
+    }
+    
+    .specs {
+      display: flex;
+      justify-content: space-around;
+      margin: 10px 0;
+    }
+    
+    .spec-item {
+      background: #1a1a1a;
+      padding: 8px 15px;
+      border-radius: 5px;
+      border: 1px solid #333;
+    }
+    
+    .credits {
+      margin-top: 15px;
+      font-size: 0.85em;
+      color: #aaa;
+      text-align: center;
+    }
+    
+    .credits a {
+      color: #d4af37;
+      text-decoration: none;
+    }
+    
+    .credits a:hover {
+      text-decoration: underline;
+    }
+    
+    .status {
+      margin-top: 10px;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    
+    .status.loading { background-color: #333; color: #ffa500; }
+    .status.success { background-color: #1a4d1a; color: #90ee90; }
+    .status.error { background-color: #4d1a1a; color: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <h1>Ancient Temple Background Demo</h1>
+  
+  <div class="game-container">
+    <canvas id="gameCanvas" width="576" height="324"></canvas>
+    
+    <div class="info-panel">
+      <div class="specs">
+        <div class="spec-item">Resolution: 576x324</div>
+        <div class="spec-item">Format: PNG</div>
+        <div class="spec-item">Path: assets/backgrounds/ancient-temple/</div>
+      </div>
+      
+      <div id="status" class="status loading">Loading temple background...</div>
+      
+      <div class="credits">
+        <p><strong>Asset Credits:</strong></p>
+        <p>Ancient Temple Pixel Backgrounds by Free Game Assets</p>
+        <p><a href="https://free-game-assets.itch.io/free-ancient-temple-pixel-game-backgrounds" target="_blank">
+          free-game-assets.itch.io/free-ancient-temple-pixel-game-backgrounds
+        </a></p>
+      </div>
+    </div>
+  </div>
+  
+  <script src="main.js"></script>
+</body>
+</html>
