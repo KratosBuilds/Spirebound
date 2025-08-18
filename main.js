@@ -1,30 +1,43 @@
-// Spirebound: Mystical Fog Animation on Welcome Screen
+// Spirebound: Welcome Screen with Forest and Mountains (no fog, no stars)
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const fogParticles = [];
+// Helper to draw a single tree
+function drawTree(x, y, scale = 1) {
+  // Trunk
+  ctx.save();
+  ctx.fillStyle = "#6b4f22";
+  ctx.fillRect(x - 4 * scale, y, 8 * scale, 18 * scale);
+
+  // Leaves (triangle)
+  ctx.beginPath();
+  ctx.moveTo(x, y - 30 * scale);
+  ctx.lineTo(x - 18 * scale, y + 5 * scale);
+  ctx.lineTo(x + 18 * scale, y + 5 * scale);
+  ctx.closePath();
+  ctx.fillStyle = "#2b8c41";
+  ctx.fill();
+
+  // Second layer of leaves
+  ctx.beginPath();
+  ctx.moveTo(x, y - 15 * scale);
+  ctx.lineTo(x - 14 * scale, y + 10 * scale);
+  ctx.lineTo(x + 14 * scale, y + 10 * scale);
+  ctx.closePath();
+  ctx.fillStyle = "#45bb6b";
+  ctx.fill();
+
+  ctx.restore();
+}
 
 function drawBackground() {
-  // Gradient night sky
+  // Gradient sky
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
   grad.addColorStop(0, "#1a0142");
   grad.addColorStop(1, "#2e2e5e");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Stars (static, optional)
-  ctx.save();
-  ctx.globalAlpha = 0.5;
-  ctx.fillStyle = "#fff";
-  for (let i = 0; i < 40; i++) {
-    let x = Math.random() * canvas.width;
-    let y = Math.random() * 300;
-    ctx.beginPath();
-    ctx.arc(x, y, Math.random() * 2 + 1, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
 }
 
 function drawMountains() {
@@ -46,41 +59,21 @@ function drawMountains() {
   ctx.fill();
 }
 
-// Mystical fog animation
-function initFog() {
-  for (let i = 0; i < 30; i++) {
-    fogParticles.push({
-      x: Math.random() * canvas.width,
-      y: 410 + Math.random() * 120,
-      r: 60 + Math.random() * 80,
-      alpha: 0.08 + Math.random() * 0.09,
-      speed: 0.18 + Math.random() * 0.22,
-      drift: (Math.random() - 0.5) * 0.8, // gentle vertical movement
-    });
-  }
-}
+function drawForest() {
+  // Draw rows of trees at different positions and scales
+  const treeRows = [
+    { y: 540, count: 18, scale: 1.2, spread: 40, offset: 0 },
+    { y: 510, count: 15, scale: 1, spread: 50, offset: 25 },
+    { y: 470, count: 12, scale: 0.8, spread: 65, offset: 10 },
+    { y: 430, count: 10, scale: 0.6, spread: 70, offset: 30 }
+  ];
 
-function updateFog() {
-  for (const fog of fogParticles) {
-    fog.x += fog.speed;
-    fog.y += fog.drift * Math.sin(Date.now() / 1000 + fog.x / 80);
-    if (fog.x - fog.r > canvas.width) {
-      fog.x = -fog.r;
-      fog.y = 410 + Math.random() * 120;
+  for (const row of treeRows) {
+    for (let i = 0; i < row.count; i++) {
+      const x = row.offset + i * row.spread + Math.random() * 8;
+      drawTree(x, row.y, row.scale);
     }
   }
-}
-
-function drawFog() {
-  ctx.save();
-  for (const fog of fogParticles) {
-    ctx.globalAlpha = fog.alpha;
-    ctx.fillStyle = "#fff";
-    ctx.beginPath();
-    ctx.arc(fog.x, fog.y, fog.r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
 }
 
 function drawTitle() {
@@ -94,15 +87,12 @@ function drawTitle() {
   ctx.restore();
 }
 
-function animate() {
+function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
   drawMountains();
-  drawFog();
+  drawForest();
   drawTitle();
-  updateFog();
-  requestAnimationFrame(animate);
 }
 
-initFog();
-animate();
+draw();
