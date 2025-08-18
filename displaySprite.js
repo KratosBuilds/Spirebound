@@ -1,6 +1,10 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Background image
+const backgroundImg = new Image();
+backgroundImg.src = 'assets/backgrounds/level1.png';
+
 // Sprite image
 const sprite = new Image();
 sprite.src = 'assets/sprite/character1.png';
@@ -18,9 +22,14 @@ class Sprite {
     let s = this.isSprinting ? this.speed * 2 : this.speed;
     let nx = this.x + dx * s;
     let ny = this.y + dy * s;
+    
+    // Use fallback sprite size if sprite not loaded
+    const spriteWidth = (sprite.complete && sprite.naturalWidth > 0) ? sprite.width : 32;
+    const spriteHeight = (sprite.complete && sprite.naturalWidth > 0) ? sprite.height : 32;
+    
     // Boundary check (keep sprite in canvas)
-    nx = Math.max(sprite.width / 2, Math.min(canvas.width - sprite.width / 2, nx));
-    ny = Math.max(sprite.height / 2, Math.min(canvas.height - sprite.height / 2, ny));
+    nx = Math.max(spriteWidth / 2, Math.min(canvas.width - spriteWidth / 2, nx));
+    ny = Math.max(spriteHeight / 2, Math.min(canvas.height - spriteHeight / 2, ny));
     // Obstacle check
     if (!checkCollision(nx, ny)) {
       this.x = nx;
@@ -41,7 +50,21 @@ class Sprite {
     }
   }
   draw() {
-    ctx.drawImage(sprite, this.x - sprite.width / 2, this.y - sprite.height / 2);
+    // If sprite is loaded, draw it, otherwise draw a colored circle
+    if (sprite.complete && sprite.naturalWidth > 0) {
+      ctx.drawImage(sprite, this.x - sprite.width / 2, this.y - sprite.height / 2);
+    } else {
+      // Fallback: draw colored circle
+      ctx.fillStyle = '#4a90e2';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 16, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Add border
+      ctx.strokeStyle = '#2e5c8a';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
     // Placeholder for animation frame logic
     // Example: ctx.drawImage(sprite, frame * sprite.width, 0, sprite.width, sprite.height, ...)
   }
@@ -50,16 +73,18 @@ class Sprite {
 const sprites = [new Sprite(canvas.width / 2, canvas.height / 2)];
 let activeSprite = 0; // Control first sprite by default
 
-// Obstacles: list of {x, y, w, h}
+// Obstacles: list of {x, y, w, h} - Updated for 576x324 canvas
 const obstacles = [
-  { x: 150, y: 120, w: 60, h: 180 },
-  { x: 340, y: 320, w: 100, h: 40 }
+  { x: 200, y: 150, w: 60, h: 100 },
+  { x: 400, y: 250, w: 100, h: 40 }
 ];
 
 // Check if (nx, ny) collides with any obstacle
 function checkCollision(nx, ny) {
   for (const obs of obstacles) {
-    const halfW = sprite.width / 2, halfH = sprite.height / 2;
+    const spriteWidth = (sprite.complete && sprite.naturalWidth > 0) ? sprite.width : 32;
+    const spriteHeight = (sprite.complete && sprite.naturalWidth > 0) ? sprite.height : 32;
+    const halfW = spriteWidth / 2, halfH = spriteHeight / 2;
     if (
       nx + halfW > obs.x &&
       nx - halfW < obs.x + obs.w &&
@@ -121,6 +146,12 @@ function update() {
 // Draw everything
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw background first
+  if (backgroundImg.complete && backgroundImg.naturalWidth > 0) {
+    ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+  }
+  
   // Obstacles
   ctx.fillStyle = 'rgba(80,40,20,0.6)';
   obstacles.forEach(obs => ctx.fillRect(obs.x, obs.y, obs.w, obs.h));
@@ -128,9 +159,11 @@ function draw() {
   sprites.forEach(s => s.draw());
   // Highlight active sprite
   const s = sprites[activeSprite];
+  const spriteWidth = (sprite.complete && sprite.naturalWidth > 0) ? sprite.width : 32;
+  const spriteHeight = (sprite.complete && sprite.naturalWidth > 0) ? sprite.height : 32;
   ctx.strokeStyle = 'yellow';
   ctx.lineWidth = 2;
-  ctx.strokeRect(s.x - sprite.width / 2, s.y - sprite.height / 2, sprite.width, sprite.height);
+  ctx.strokeRect(s.x - spriteWidth / 2, s.y - spriteHeight / 2, spriteWidth, spriteHeight);
 }
 
 // Main loop
@@ -140,5 +173,37 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-// Start loop after sprite loads
-sprite.onload = loop;
+// Track loaded images
+let spriteLoaded = false;
+let backgroundLoaded = false;
+
+// Check if both images are loaded and start the game
+function checkImagesLoaded() {
+  // For now, just wait for background since sprite file is corrupted
+  // We can start the game with just the background loaded
+  if (backgroundLoaded) {
+    console.log("Background loaded, starting game loop");
+    loop();
+  }
+}
+
+// Start loop after both sprite and background load
+sprite.onload = function() {
+  console.log("Sprite loaded");
+  spriteLoaded = true;
+  checkImagesLoaded();
+};
+
+sprite.onerror = function() {
+  console.error("Failed to load sprite:", sprite.src);
+};
+
+backgroundImg.onload = function() {
+  console.log("Background loaded");
+  backgroundLoaded = true;
+  checkImagesLoaded();
+};
+
+backgroundImg.onerror = function() {
+  console.error("Failed to load background:", backgroundImg.src);
+};
