@@ -1,11 +1,11 @@
-// Spirebound: Welcome Screen using original sprite image (128x128)
+// Spirebound: Welcome Screen using main_character.png sprite (112x112)
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Load the character sprite image (original JPEG with white background)
+// Load the character sprite image (112x112 PNG)
 const heroImg = new Image();
-heroImg.src = 'image_1755480371421.jpeg'; // Use your original JPEG filename
+heroImg.src = 'main_character.png'; // Updated sprite filename
 
 heroImg.onload = function() {
   draw();
@@ -91,9 +91,9 @@ function draw() {
   drawMountains();
   drawTitle();
 
-  // Draw the character sprite in the center, 128x128
-  const spriteWidth = 128;
-  const spriteHeight = 128;
+  // Draw the character sprite in the center, 112x112
+  const spriteWidth = 112;
+  const spriteHeight = 112;
   const x = canvas.width / 2 - spriteWidth / 2;
   const y = canvas.height / 2 - spriteHeight / 2 + 60;
   ctx.drawImage(heroImg, x, y, spriteWidth, spriteHeight);
