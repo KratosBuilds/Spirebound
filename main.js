@@ -2,7 +2,6 @@ window.onload = function() {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
 
-  // Load hero sprite (use exact filename)
   const spriteImg = new Image();
   spriteImg.src = 'Hero_sprite.png';
 
@@ -12,54 +11,66 @@ window.onload = function() {
   };
 
   function drawBackground() {
-    // Sky
-    ctx.fillStyle = '#222';
+    // Blue sky gradient
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    skyGradient.addColorStop(0, '#4e89cf');
+    skyGradient.addColorStop(1, '#1c2b4b');
+    ctx.fillStyle = skyGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Mountains (three layers for depth)
+    // Mountains - back layer
     ctx.beginPath();
-    ctx.moveTo(0, 350);
-    ctx.lineTo(100, 200);
-    ctx.lineTo(250, 350);
-    ctx.lineTo(400, 350);
-    ctx.lineTo(400, 400);
+    ctx.moveTo(0, 300);
+    ctx.lineTo(100, 180);
+    ctx.lineTo(250, 280);
+    ctx.lineTo(400, 150);
+    ctx.lineTo(600, 260);
+    ctx.lineTo(600, 400);
     ctx.lineTo(0, 400);
     ctx.closePath();
-    ctx.fillStyle = '#444';
+    ctx.fillStyle = '#44556b';
     ctx.fill();
 
+    // Mountains - middle layer
     ctx.beginPath();
-    ctx.moveTo(50, 350);
-    ctx.lineTo(180, 240);
-    ctx.lineTo(320, 350);
-    ctx.lineTo(400, 350);
-    ctx.lineTo(400, 400);
+    ctx.moveTo(0, 330);
+    ctx.lineTo(120, 240);
+    ctx.lineTo(300, 340);
+    ctx.lineTo(480, 220);
+    ctx.lineTo(600, 320);
+    ctx.lineTo(600, 400);
     ctx.lineTo(0, 400);
     ctx.closePath();
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = '#617191';
     ctx.fill();
 
+    // Mountains - front layer
     ctx.beginPath();
-    ctx.moveTo(120, 350);
-    ctx.lineTo(200, 280);
-    ctx.lineTo(280, 350);
-    ctx.lineTo(400, 350);
-    ctx.lineTo(400, 400);
+    ctx.moveTo(0, 370);
+    ctx.lineTo(160, 320);
+    ctx.lineTo(320, 370);
+    ctx.lineTo(480, 330);
+    ctx.lineTo(600, 370);
+    ctx.lineTo(600, 400);
     ctx.lineTo(0, 400);
     ctx.closePath();
-    ctx.fillStyle = '#888';
+    ctx.fillStyle = '#a6b1be';
     ctx.fill();
 
-    // Gray Moon
+    // Ground
+    ctx.fillStyle = '#3a3e49';
+    ctx.fillRect(0, 370, canvas.width, 30);
+
+    // Gray moon
     ctx.beginPath();
-    ctx.arc(320, 80, 40, 0, Math.PI * 2);
-    ctx.fillStyle = '#bbb';
+    ctx.arc(530, 70, 38, 0, Math.PI * 2);
+    ctx.fillStyle = '#cecfcf';
     ctx.fill();
 
-    // Light Stars
-    for (let i = 0; i < 40; i++) {
+    // Light stars
+    for (let i = 0; i < 60; i++) {
       let x = Math.random() * canvas.width;
-      let y = Math.random() * 200;
+      let y = Math.random() * 180;
       ctx.fillStyle = '#fff';
       ctx.fillRect(x, y, 2, 2);
     }
@@ -68,7 +79,7 @@ window.onload = function() {
   function drawHero() {
     // Center horizontally, place sprite at ground level
     const x = canvas.width / 2 - 56;
-    const y = canvas.height - 112;
+    const y = 370 - 112; // so feet touch the ground strip
     ctx.drawImage(spriteImg, x, y, 112, 112);
   }
 };
