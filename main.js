@@ -1,43 +1,71 @@
-// Spirebound: Welcome Screen with Forest and Mountains (no fog, no stars)
+// Spirebound: Welcome Screen with Gray Glowing Moon and Light Stars (no forest, no trees)
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Helper to draw a single tree
-function drawTree(x, y, scale = 1) {
-  // Trunk
-  ctx.save();
-  ctx.fillStyle = "#6b4f22";
-  ctx.fillRect(x - 4 * scale, y, 8 * scale, 18 * scale);
+// Moon properties
+const moon = {
+  x: 670,
+  y: 120,
+  r: 50
+};
 
-  // Leaves (triangle)
-  ctx.beginPath();
-  ctx.moveTo(x, y - 30 * scale);
-  ctx.lineTo(x - 18 * scale, y + 5 * scale);
-  ctx.lineTo(x + 18 * scale, y + 5 * scale);
-  ctx.closePath();
-  ctx.fillStyle = "#2b8c41";
-  ctx.fill();
-
-  // Second layer of leaves
-  ctx.beginPath();
-  ctx.moveTo(x, y - 15 * scale);
-  ctx.lineTo(x - 14 * scale, y + 10 * scale);
-  ctx.lineTo(x + 14 * scale, y + 10 * scale);
-  ctx.closePath();
-  ctx.fillStyle = "#45bb6b";
-  ctx.fill();
-
-  ctx.restore();
+// Generate light star field
+const STAR_COUNT = 60;
+const stars = [];
+function initStars() {
+  for (let i = 0; i < STAR_COUNT; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * 320,
+      r: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.5 + 0.5,
+    });
+  }
 }
 
 function drawBackground() {
-  // Gradient sky
+  // Gradient night sky
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
   grad.addColorStop(0, "#1a0142");
   grad.addColorStop(1, "#2e2e5e");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawMoon() {
+  // Main moon (gray, glowing)
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(moon.x, moon.y, moon.r, 0, Math.PI * 2);
+  ctx.fillStyle = "#d3d3d3";
+  ctx.shadowColor = "#b0b0b0";
+  ctx.shadowBlur = 45;
+  ctx.globalAlpha = 0.97;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+
+  // Craters (gray)
+  ctx.beginPath();
+  ctx.arc(moon.x + 12, moon.y + 18, 8, 0, Math.PI * 2);
+  ctx.arc(moon.x - 18, moon.y - 8, 5, 0, Math.PI * 2);
+  ctx.arc(moon.x + 22, moon.y - 15, 4, 0, Math.PI * 2);
+  ctx.fillStyle = "#a9a9a9";
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawStars() {
+  ctx.save();
+  for (const star of stars) {
+    ctx.globalAlpha = star.alpha;
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
 }
 
 function drawMountains() {
@@ -59,23 +87,6 @@ function drawMountains() {
   ctx.fill();
 }
 
-function drawForest() {
-  // Draw rows of trees at different positions and scales
-  const treeRows = [
-    { y: 540, count: 18, scale: 1.2, spread: 40, offset: 0 },
-    { y: 510, count: 15, scale: 1, spread: 50, offset: 25 },
-    { y: 470, count: 12, scale: 0.8, spread: 65, offset: 10 },
-    { y: 430, count: 10, scale: 0.6, spread: 70, offset: 30 }
-  ];
-
-  for (const row of treeRows) {
-    for (let i = 0; i < row.count; i++) {
-      const x = row.offset + i * row.spread + Math.random() * 8;
-      drawTree(x, row.y, row.scale);
-    }
-  }
-}
-
 function drawTitle() {
   ctx.save();
   ctx.fillStyle = "#fff";
@@ -90,9 +101,11 @@ function drawTitle() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
+  drawMoon();
+  drawStars();
   drawMountains();
-  drawForest();
   drawTitle();
 }
 
+initStars();
 draw();
