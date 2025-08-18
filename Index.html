@@ -2,14 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Spirebound</title>
+  <title>Sprite Game</title>
   <style>
-    body { background: #18132a; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    canvas { border: 2px solid #333; }
+    body {
+      background: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    canvas {
+      border: 2px solid #444;
+      margin-top: 40px;
+      background: transparent;
+    }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <h1>Gray Moon & Stars Demo</h1>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
   <script src="main.js"></script>
 </body>
 </html>
