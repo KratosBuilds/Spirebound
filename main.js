@@ -1,28 +1,71 @@
-// Spirebound: Welcome Screen with animated sprite on ground level
+// Spirebound: Sprite can move, jump, run, and animates. Stars are bright and do NOT twinkle or move.
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// --- Animation Sprite Sheet Settings ---
-// If you have a single-frame sprite, set NUM_FRAMES = 1
+// --- Sprite sheet settings ---
 const FRAME_WIDTH = 112;
 const FRAME_HEIGHT = 112;
-const NUM_FRAMES = 1; // Change this to match your sprite sheet frame count (set to 1 for single-frame)
+
+// Animation states: "idle", "run", "jump"
+const ANIMATION_FRAMES = {
+  idle: 1,
+  run: 4,
+  jump: 2
+};
+
 let currentFrame = 0;
 let frameTick = 0;
+let frameSpeed = 8;
+
+// Sprite state
+let spriteX = canvas.width / 2 - FRAME_WIDTH / 2;
+let spriteY = canvas.height - FRAME_HEIGHT - 100;
+let velocityX = 0;
+let velocityY = 0;
+const groundY = canvas.height - FRAME_HEIGHT - 100;
+let onGround = true;
+let facing = "right";
+
+// Animation state
+let animationState = "idle";
+let animationFrameCount = ANIMATION_FRAMES[animationState];
+
+// Controls
+let leftPressed = false;
+let rightPressed = false;
+let shiftPressed = false;
+let jumpPressed = false;
+
+// Physics
+const walkSpeed = 4;
+const runSpeed = 8;
+const gravity = 1.2;
+const jumpPower = 20;
 
 // Load the character sprite sheet
 const heroImg = new Image();
-heroImg.src = 'Hero_sprite.png'; // Sprite sheet (multiple frames in a row or single frame)
+heroImg.src = 'Hero_sprite.png';
 
 heroImg.onload = function() {
-  animate();
+  requestAnimationFrame(gameLoop);
 };
+
+// --- STAR FIELD: Generate once, fixed positions ---
+const STAR_COUNT = 60;
+const stars = [];
+for (let i = 0; i < STAR_COUNT; i++) {
+  stars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * 320,
+    r: 1.5
+  });
+}
 
 function drawBackground() {
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  grad.addColorStop(0, "#1a0142");
-  grad.addColorStop(1, "#2e2e5e");
+  grad.addColorStop(0, "#4e89cf");
+  grad.addColorStop(1, "#1c2b4b");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
@@ -68,15 +111,17 @@ function drawMoon() {
 }
 
 function drawStars() {
-  for (let i = 0; i < 60; i++) {
-    ctx.save();
-    ctx.globalAlpha = Math.random() * 0.5 + 0.5;
-    ctx.fillStyle = "#fff";
+  // Draw stars from the array, fixed positions, bright, no twinkle
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#e8e8ff";
+  for (let i = 0; i < STAR_COUNT; i++) {
+    const star = stars[i];
     ctx.beginPath();
-    ctx.arc(Math.random() * canvas.width, Math.random() * 320, Math.random() * 1.5 + 0.5, 0, Math.PI * 2);
+    ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore();
   }
+  ctx.restore();
 }
 
 function drawTitle() {
@@ -91,20 +136,93 @@ function drawTitle() {
 }
 
 function drawHero() {
-  const x = canvas.width / 2 - FRAME_WIDTH / 2;
-  const y = canvas.height - FRAME_HEIGHT - 100; // Feet touch mountain base
-  ctx.drawImage(
-    heroImg,
-    currentFrame * FRAME_WIDTH, 0, // source x, y (for sprite sheet)
-    FRAME_WIDTH, FRAME_HEIGHT,     // source w, h
-    x, y,                         // dest x, y
-    FRAME_WIDTH, FRAME_HEIGHT     // dest w, h
-  );
+  // Determine frame offset for animation state
+  let frameIndex = currentFrame;
+  let frameOffset = 0;
+  if (animationState === "run") frameOffset = ANIMATION_FRAMES.idle;
+  if (animationState === "jump") frameOffset = ANIMATION_FRAMES.idle + ANIMATION_FRAMES.run;
+  if (facing === "left") {
+    ctx.save();
+    ctx.translate(spriteX + FRAME_WIDTH / 2, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(
+      heroImg,
+      (frameOffset + frameIndex) * FRAME_WIDTH, 0,
+      FRAME_WIDTH, FRAME_HEIGHT,
+      -FRAME_WIDTH / 2, spriteY,
+      FRAME_WIDTH, FRAME_HEIGHT
+    );
+    ctx.restore();
+  } else {
+    ctx.drawImage(
+      heroImg,
+      (frameOffset + frameIndex) * FRAME_WIDTH, 0,
+      FRAME_WIDTH, FRAME_HEIGHT,
+      spriteX, spriteY,
+      FRAME_WIDTH, FRAME_HEIGHT
+    );
+  }
+}
+
+function updateSprite() {
+  let moveSpeed = shiftPressed ? runSpeed : walkSpeed;
+
+  if (leftPressed) {
+    velocityX = -moveSpeed;
+    facing = "left";
+  } else if (rightPressed) {
+    velocityX = moveSpeed;
+    facing = "right";
+  } else {
+    velocityX = 0;
+  }
+
+  if (jumpPressed && onGround) {
+    velocityY = -jumpPower;
+    onGround = false;
+  }
+
+  if (!onGround) {
+    velocityY += gravity;
+  }
+
+  spriteX += velocityX;
+  spriteY += velocityY;
+
+  if (spriteY >= groundY) {
+    spriteY = groundY;
+    velocityY = 0;
+    onGround = true;
+  }
+
+  if (spriteX < 0) spriteX = 0;
+  if (spriteX + FRAME_WIDTH > canvas.width) spriteX = canvas.width - FRAME_WIDTH;
+
+  if (!onGround) {
+    animationState = "jump";
+    animationFrameCount = ANIMATION_FRAMES.jump;
+    frameSpeed = 12;
+  } else if (velocityX !== 0) {
+    animationState = "run";
+    animationFrameCount = ANIMATION_FRAMES.run;
+    frameSpeed = shiftPressed ? 4 : 8;
+  } else {
+    animationState = "idle";
+    animationFrameCount = ANIMATION_FRAMES.idle;
+    frameSpeed = 30;
+  }
+}
+
+function updateAnimation() {
+  frameTick++;
+  if (frameTick % frameSpeed === 0) {
+    currentFrame = (currentFrame + 1) % animationFrameCount;
+  }
+  if (frameTick > 10000) frameTick = 0;
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   drawBackground();
   drawMoon();
   drawStars();
@@ -113,17 +231,26 @@ function draw() {
   drawHero();
 }
 
-// Animation loop for sprite (will advance frames if NUM_FRAMES > 1)
-function animate() {
-  frameTick++;
-  if (frameTick % 10 === 0 && NUM_FRAMES > 1) { // Lower is faster. Adjust for speed.
-    currentFrame = (currentFrame + 1) % NUM_FRAMES;
-  }
+function gameLoop() {
+  updateSprite();
+  updateAnimation();
   draw();
-  requestAnimationFrame(animate);
+  requestAnimationFrame(gameLoop);
 }
 
-// If the image is cached and loads instantly
+document.addEventListener('keydown', function(e) {
+  if (e.code === "ArrowLeft") leftPressed = true;
+  if (e.code === "ArrowRight") rightPressed = true;
+  if (e.code === "Space") jumpPressed = true;
+  if (e.code === "ShiftLeft" || e.code === "ShiftRight") shiftPressed = true;
+});
+document.addEventListener('keyup', function(e) {
+  if (e.code === "ArrowLeft") leftPressed = false;
+  if (e.code === "ArrowRight") rightPressed = false;
+  if (e.code === "Space") jumpPressed = false;
+  if (e.code === "ShiftLeft" || e.code === "ShiftRight") shiftPressed = false;
+});
+
 if (heroImg.complete) {
-  animate();
+  requestAnimationFrame(gameLoop);
 }
