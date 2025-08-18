@@ -1,12 +1,11 @@
-// Spirebound: Welcome Screen using character sprite at ground level
+// Spirebound: Welcome Screen using uploaded transparent sprite on ground level
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Use your PNG sprite with transparency for best visual results.
-// If you still have a JPEG, the background will remain visible.
+// Load the character sprite image (replace with your uploaded filename if needed)
 const heroImg = new Image();
-heroImg.src = 'image_1755480371421.jpeg'; // Change to 'hero.png' if you upload a transparent PNG!
+heroImg.src = 'your_uploaded_sprite_filename.png'; // Use your actual PNG filename
 
 heroImg.onload = function() {
   draw();
@@ -92,18 +91,16 @@ function draw() {
   drawMountains();
   drawTitle();
 
-  // Sprite size (adjust as desired)
+  // Draw the character sprite at ground level
   const spriteWidth = 112;
   const spriteHeight = 112;
-
-  // Position sprite so its feet are on the ground (mountains start at y ≈ 380)
-  const groundY = 380; // Adjust if needed
   const x = canvas.width / 2 - spriteWidth / 2;
-  const y = groundY - spriteHeight;
-
+  // Position feet at mountain base (tweak -100 for other ground heights)
+  const y = canvas.height - spriteHeight - 100;
   ctx.drawImage(heroImg, x, y, spriteWidth, spriteHeight);
 }
 
+// If the image is cached and loads instantly
 if (heroImg.complete) {
   draw();
-    }
+}
