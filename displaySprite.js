@@ -1,9 +1,12 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Load background image from root directory
+const background = new Image();
+background.src = 'background 1.png';
+
 // Sprite image
 const sprite = new Image();
-// Updated to use your uploaded jpeg file
 sprite.src = 'assets/sprite/image_1755480371421.jpeg';
 
 // Sprite properties and array for multiple sprites
@@ -44,7 +47,6 @@ class Sprite {
   draw() {
     ctx.drawImage(sprite, this.x - sprite.width / 2, this.y - sprite.height / 2);
     // Placeholder for animation frame logic
-    // Example: ctx.drawImage(sprite, frame * sprite.width, 0, sprite.width, sprite.height, ...)
   }
 }
 
@@ -122,6 +124,7 @@ function update() {
 // Draw everything
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(background, 0, 0, canvas.width, canvas.height); // Draw background first
   // Obstacles
   ctx.fillStyle = 'rgba(80,40,20,0.6)';
   obstacles.forEach(obs => ctx.fillRect(obs.x, obs.y, obs.w, obs.h));
@@ -141,5 +144,7 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-// Start loop after sprite loads
-sprite.onload = loop;
+// Start loop after both images load
+background.onload = function() {
+  sprite.onload = loop;
+};
